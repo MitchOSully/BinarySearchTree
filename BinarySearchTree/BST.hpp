@@ -1,11 +1,51 @@
-#include "BST.h"
-#include <iostream>
-#include <queue> // for insertion
-#include "Assert.h"
+#pragma once
+#include <memory> // for unique_ptr
+#include <iostream> // for std::cout
+#include "Assert.h" // for ASSERTMSG
 
+///////////////////////////////////////////////////////////
+// CLASS DECLARATION
+///////////////////////////////////////////////////////////
 
-//template<typename T>
-bool BST::insert(int elem)
+template<typename T>
+class BST
+{
+public:
+    bool insert(T elem);
+    bool remove(T elem);
+    bool exists(T elem);
+
+    void print(bool bCompact = true);
+
+private:
+    class Node
+    {
+    public:
+        Node() = delete;
+        Node(T inData) : data(inData) {}
+
+        void setChild(std::shared_ptr<Node> pNewChild, bool bLeft);
+
+        T data;
+        std::shared_ptr<Node> pLeft = nullptr;
+        std::shared_ptr<Node> pRight = nullptr;
+    };
+
+    //std::shared_ptr<Node> search(T elem);
+    void removeRoot();
+    void removeNode(Node& node, Node& parent);
+    void putNodeInChildren(const std::shared_ptr<Node> pNode, Node& startNode);
+    void printThisAndAllChildren(const Node& node, bool bCompact = true);
+
+    std::shared_ptr<Node> pRoot = nullptr;
+};
+
+///////////////////////////////////////////////////////////
+// FUNCTION DEFINITIONS
+///////////////////////////////////////////////////////////
+
+template<typename T>
+bool BST<T>::insert(T elem)
 {
     bool bSuccess = false;
 
@@ -58,7 +98,8 @@ bool BST::insert(int elem)
     return bSuccess;
 }
 
-bool BST::remove(int elem)
+template<typename T>
+bool BST<T>::remove(T elem)
 {
     bool bSuccess = false;
 
@@ -95,7 +136,8 @@ bool BST::remove(int elem)
     return bSuccess;
 }
 
-void BST::removeRoot()
+template<typename T>
+void BST<T>::removeRoot()
 {
     // Replace root with its left child (arbitrary decision) and then find a place for the right
     // child in the children of the new root.
@@ -110,34 +152,38 @@ void BST::removeRoot()
 /// </summary>
 /// <param name="node"></param>
 /// <param name="parent"></param>
-void BST::removeNode(BST::Node& node, BST::Node& parent)
+template<typename T>
+void BST<T>::removeNode(BST::Node& node, BST::Node& parent)
 {
     bool bIsLeftChild = (parent.pLeft && node.data == parent.pLeft->data);
     bool bIsRightChild = (parent.pRight && node.data == parent.pRight->data);
     ASSERTMSG(bIsLeftChild || bIsRightChild, "Parameters must be a parent-child pair");
 
-    // Handle the children of the node we're removing
-    if (!node.pLeft && !node.pRight)
+    if (bIsLeftChild || bIsRightChild)
     {
-        // Node is a leaf. We can delete without any restructuring.
-        parent.setChild(nullptr, bIsLeftChild);
-    }
-    else if (!node.pLeft && node.pRight)
-    {
-        // Node only has a right child. Replace the removed node with its only child.
-        parent.setChild(node.pRight, bIsLeftChild);
-    }
-    else if (node.pLeft && !node.pRight)
-    {
-        // Node only has a left child. Replace the removed node with its only child.
-        parent.setChild(node.pLeft, bIsLeftChild);
-    }
-    else // node.pLeft && node.pRight
-    {
-        // The removed node has two children. Replace it with its left child (arbitrary decision),
-        // and find a place for the right child in the children of the left child.
-        putNodeInChildren(node.pRight, *node.pLeft);
-        parent.setChild(node.pLeft, bIsLeftChild);
+        // Handle the children of the node we're removing
+        if (!node.pLeft && !node.pRight)
+        {
+            // Node is a leaf. We can delete without any restructuring.
+            parent.setChild(nullptr, bIsLeftChild);
+        }
+        else if (!node.pLeft && node.pRight)
+        {
+            // Node only has a right child. Replace the removed node with its only child.
+            parent.setChild(node.pRight, bIsLeftChild);
+        }
+        else if (node.pLeft && !node.pRight)
+        {
+            // Node only has a left child. Replace the removed node with its only child.
+            parent.setChild(node.pLeft, bIsLeftChild);
+        }
+        else // node.pLeft && node.pRight
+        {
+            // The removed node has two children. Replace it with its left child (arbitrary decision),
+            // and find a place for the right child in the children of the left child.
+            putNodeInChildren(node.pRight, *node.pLeft);
+            parent.setChild(node.pLeft, bIsLeftChild);
+        }
     }
 }
 
@@ -147,7 +193,8 @@ void BST::removeNode(BST::Node& node, BST::Node& parent)
 /// </summary>
 /// <param name="pNode"></param>
 /// <param name="startNode"></param>
-void BST::putNodeInChildren(const std::shared_ptr<BST::Node> pNode, BST::Node& startNode)
+template<typename T>
+void BST<T>::putNodeInChildren(const std::shared_ptr<BST::Node> pNode, BST::Node& startNode)
 {
     ASSERT(pNode);
     ASSERT(pNode->data != startNode.data);
@@ -176,7 +223,8 @@ void BST::putNodeInChildren(const std::shared_ptr<BST::Node> pNode, BST::Node& s
     }
 }
 
-void BST::Node::setChild(std::shared_ptr<Node> pNewChild, bool bLeft)
+template<typename T>
+void BST<T>::Node::setChild(std::shared_ptr<Node> pNewChild, bool bLeft)
 {
     if (bLeft)
     {
@@ -188,7 +236,8 @@ void BST::Node::setChild(std::shared_ptr<Node> pNewChild, bool bLeft)
     }
 }
 
-bool BST::exists(int elem)
+template<typename T>
+bool BST<T>::exists(T elem)
 {
     bool bFound = false;
 
@@ -213,36 +262,38 @@ bool BST::exists(int elem)
 }
 
 // currently unused
-std::shared_ptr<BST::Node> BST::search(int elem)
-{
-    std::shared_ptr<Node> pTarget = nullptr;
-
-    std::shared_ptr<Node> pNext = pRoot;
-    while (pNext && !pTarget)
-    {
-        std::shared_ptr<Node> pCurr = pNext;
-        if (elem < pCurr->data)
-        {
-            pNext = pCurr->pLeft;
-        }
-        else if (elem > pCurr->data)
-        {
-            pNext = pCurr->pRight;
-        }
-        else
-        {
-            pTarget = pCurr;
-        }
-    }
-
-    return pTarget;
-}
+//template<typename T>
+//std::shared_ptr<BST<T>::Node> BST<T>::search(T elem)
+//{
+//    std::shared_ptr<Node> pTarget = nullptr;
+//
+//    std::shared_ptr<Node> pNext = pRoot;
+//    while (pNext && !pTarget)
+//    {
+//        std::shared_ptr<Node> pCurr = pNext;
+//        if (elem < pCurr->data)
+//        {
+//            pNext = pCurr->pLeft;
+//        }
+//        else if (elem > pCurr->data)
+//        {
+//            pNext = pCurr->pRight;
+//        }
+//        else
+//        {
+//            pTarget = pCurr;
+//        }
+//    }
+//
+//    return pTarget;
+//}
 
 /// <summary>
 /// print
 /// Prints the contents of the tree in sorted order.
 /// </summary>
-void BST::print(bool bCompact /*= true*/)
+template<typename T>
+void BST<T>::print(bool bCompact /*= true*/)
 {
     if (bCompact)
     {
@@ -266,7 +317,8 @@ void BST::print(bool bCompact /*= true*/)
 /// </summary>
 /// <param name="node"></param>
 /// <param name="bCompact"></param>
-void BST::printThisAndAllChildren(const BST::Node& node, bool bCompact /*= true*/)
+template<typename T>
+void BST<T>::printThisAndAllChildren(const BST::Node& node, bool bCompact /*= true*/)
 {
     if (node.pLeft)
     {

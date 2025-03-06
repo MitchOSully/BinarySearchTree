@@ -1,12 +1,12 @@
 #pragma once
-#include "BST.h"
+#include "BST.hpp"
 
 namespace TestHarness
 {
     namespace TestBST
     {
-        void Insert(BST& tree);
-        void Exists(BST& tree);
-        void Remove(BST& tree);
+        void Insert(BST<int>& tree);
+        void Exists(BST<int>& tree);
+        void Remove(BST<int>& tree);
     }
 }

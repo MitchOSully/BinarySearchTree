@@ -139,13 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BST.cpp" />
     <ClCompile Include="BST_TestHarness.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assert.h" />
-    <ClInclude Include="BST.h" />
+    <ClInclude Include="BST.hpp" />
     <ClInclude Include="BST_TestHarness.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

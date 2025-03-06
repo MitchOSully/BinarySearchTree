@@ -18,15 +18,12 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BST.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BST_TestHarness.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BST.h">
+    <ClInclude Include="BST.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Assert.h">

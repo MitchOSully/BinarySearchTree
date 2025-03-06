@@ -1,9 +1,10 @@
-#include "BST.h"
+#include "BST.hpp"
 #include "BST_TestHarness.h"
 
 int main()
 {
-    BST tree;
+    BST<int> tree;
+
     TestHarness::TestBST::Insert(tree);
     TestHarness::TestBST::Exists(tree);
     TestHarness::TestBST::Remove(tree);
